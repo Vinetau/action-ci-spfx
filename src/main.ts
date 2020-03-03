@@ -1,9 +1,11 @@
 import * as artifact from "@actions/artifact";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
+import * as github from "@actions/github";
 
 async function main() {
 	try {
+		let solutionName: string = core.getInput("OCTOPUS_URL", { required: true });
 		core.info("Building and testing solution...");
 		core.info("(1/4) Install");
 		await exec(`yarn install --freeze-lockfile`);
@@ -11,8 +13,14 @@ async function main() {
 		await exec(`yarn gulp bundle --ship`);
 		core.info("(3/4) Test");
 		await exec(`yarn test`);
-		core.info("(4/4) Installing...");
+		core.info("(4/4) Package");
 		await exec(`yarn gulp package-solution --ship`);
+		const context = github.context;
+		const repo = context.repo.repo;
+		const version = (context.ref.indexOf("refs/tags/") !== -1) ? context.ref.replace("refs/tags/", "") : "0.0.1"; // TODO fail on this when we move to only running on release
+		// If no solution name is provided we assume that the solution filename is repo_name.sppkg
+		solutionName = solutionName ? solutionName : `${repo}.sppkg`;
+		createArtifact([`sharepoint\\solution\\${solutionName}`], getArtifactName(repo, version));
 
 	} catch (err) {
 		core.error("❌ Failed");
@@ -24,19 +32,17 @@ function getArtifactName(repo: string, version: string) {
 	return repo + "-" + version;
 }
 
-
-async function createArtifact(artifactName: string) {
+async function createArtifact(files: string[], artifactName: string) {
 	core.info(`Creating artifact ${artifactName}...`);
 	const artifactClient = artifact.create();
 	try {
-		const response = await artifactClient.downloadArtifact(artifactName);
+		const uploadResult = await artifactClient.uploadArtifact(artifactName, files, ".");
+		core.info(`✅ complete`);
 	} catch (error) {
-		core.error("❌ Could not retrieve artifact");
+		core.error("❌ Could not create artifact");
 		core.setFailed(error.message);
 
 	}
-	await exec(`ls`);
-	await exec(`pwd`);
 }
 
 async function deployToOctopus(projectName: string, version: string, repo: string, solutionPath: string, deployTo: string, octopusUrl: string, octopusApiKey: string) {

@@ -1,5 +1,9 @@
 name: 'action-ci-spfx'
-description: 'GitHub Action to build and test a spfx solutio'
+description: 'GitHub Action to build and test a spfx solution'
+inputs:
+  PACKAGE_NAME:  
+    description: 'The name of the solution package generated for this project'
+    required: false
 runs:
   using: "node12"
   main: "dist/index.js"
