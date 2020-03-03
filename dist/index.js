@@ -2587,8 +2587,7 @@ function main() {
             let solutionName = core.getInput("SOLUTION_NAME", { required: false });
             const context = github.context;
             const repo = context.repo.repo;
-            core.info(`🧪 ${context.ref}`);
-            core.info("Building and testing solution...");
+            core.info(`Building and testing solution (ref: ${context.ref})...`);
             core.info("(1/4) Install");
             yield exec_1.exec(`yarn install --freeze-lockfile`);
             core.info("(2/4) Build");
@@ -2597,9 +2596,11 @@ function main() {
             yield exec_1.exec(`yarn test`);
             core.info("(4/4) Package");
             yield exec_1.exec(`yarn gulp package-solution --ship`);
-            // If no solution name is provided we assume that the solution filename is repo_name.sppkg
-            solutionName = solutionName ? solutionName : `${repo}.sppkg`;
-            createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
+            if (context.ref === "refs/heads/master") {
+                // If no solution name is provided we assume that the solution filename is repo_name.sppkg
+                solutionName = solutionName ? solutionName : `${repo}.sppkg`;
+                createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
+            }
         }
         catch (err) {
             core.error("❌ Failed");
@@ -2607,73 +2608,18 @@ function main() {
         }
     });
 }
-function getArtifactName(repo, version) {
-    return repo + "-" + version;
-}
 function createArtifact(files, artifactName) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info(`Creating artifact ${artifactName}...`);
+        core.info(`📦 Creating artifact ${artifactName}...`);
         const artifactClient = artifact.create();
         try {
-            const uploadResult = yield artifactClient.uploadArtifact(artifactName, files, ".");
+            const response = yield artifactClient.uploadArtifact(artifactName, files, ".");
+            core.info(`Artifact ${response.artifactName} (size: ${response.size}) uploaded`);
             core.info(`✅ complete`);
         }
         catch (error) {
             core.error("❌ Could not create artifact");
             core.setFailed(error.message);
-        }
-    });
-}
-function deployToOctopus(projectName, version, repo, solutionPath, deployTo, octopusUrl, octopusApiKey) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            core.info("Installing octopus cli...");
-            yield exec_1.exec(`dotnet tool install octopus.dotnet.cli --tool-path .`);
-            core.info("Packing Solution...");
-            yield exec_1.exec(`pwd`);
-            yield exec_1.exec(`.\\dotnet-octo.exe pack --id=${repo} --outFolder=output --basePath=${solutionPath} --version=${version}`);
-            core.info("Pushing to Octopus...");
-            yield exec_1.exec(`.\\dotnet-octo push --package=output\\${repo}.${version}.nupkg --server=${octopusUrl} --apiKey=${octopusApiKey}`);
-            core.info("Creating Release...");
-            const deployToString = deployTo ? `--deployTo=${deployTo}` : "";
-            yield exec_1.exec(`.\\dotnet-octo create-release --project=${projectName} --version=${version} --server=${octopusUrl} --apiKey=${octopusApiKey} ${deployToString}`);
-            core.info("✅ complete");
-            sendTeamsNotification(projectName, `✔ Version ${version} Deployed to Octopus`);
-        }
-        catch (err) {
-            core.error("❌ Failed to deploy");
-            core.setFailed(err.message);
-        }
-    });
-}
-/**
- * Sends a MS Teams notification
- * @param title
- * @param body
- */
-function sendTeamsNotification(title, body) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const webhookUrl = "https://outlook.office.com/webhook/beb7ab67-f145-4f1b-b78e-a87ef32d13c5@0dfbb122-0ae4-46cf-95f5-950fdedb4a38/IncomingWebhook/2c8fe1f60f0044ca92c62582482070f7/ec6f0c35-3f41-43af-b946-4c9fc5215efe";
-        const data = `"{ '@context': 'http://schema.org/extensions', '@type': 'MessageCard', 'title': '${title}', 'text': '${body}' }"`;
-        core.info("Sending Teams notification...");
-        // await exec(`curl --url "${webhookUrl}" -d ${data}`);
-    });
-}
-function executeCommand(command) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let output = "";
-        const options = {};
-        options.listeners = {
-            stdout: (data) => {
-                output += data.toString();
-            },
-        };
-        try {
-            yield exec_1.exec(command.trim(), [], options);
-            return output;
-        }
-        catch (err) {
-            throw new Error(err);
         }
     });
 }
