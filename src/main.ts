@@ -8,11 +8,11 @@ async function main() {
 		core.info("(1/4) Install");
 		await exec(`yarn install --freeze-lockfile`);
 		core.info("(2/4) Build");
-		await exec(`gulp bundle --ship`);
+		await exec(`yarn gulp bundle --ship`);
 		core.info("(3/4) Test");
 		await exec(`yarn test`);
 		core.info("(4/4) Installing...");
-		await exec(`gulp package-solution --ship`);
+		await exec(`yarn gulp package-solution --ship`);
 
 	} catch (err) {
 		core.error("❌ Failed");
@@ -25,8 +25,8 @@ function getArtifactName(repo: string, version: string) {
 }
 
 
-async function downloadArtifact(artifactName: string) {
-	core.info(`Downloading package artifact ${artifactName}...`);
+async function createArtifact(artifactName: string) {
+	core.info(`Creating artifact ${artifactName}...`);
 	const artifactClient = artifact.create();
 	try {
 		const response = await artifactClient.downloadArtifact(artifactName);

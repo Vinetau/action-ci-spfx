@@ -1216,11 +1216,11 @@ function main() {
             core.info("(1/4) Install");
             yield exec_1.exec(`yarn install --freeze-lockfile`);
             core.info("(2/4) Build");
-            yield exec_1.exec(`gulp bundle --ship`);
+            yield exec_1.exec(`yarn gulp bundle --ship`);
             core.info("(3/4) Test");
             yield exec_1.exec(`yarn test`);
             core.info("(4/4) Installing...");
-            yield exec_1.exec(`gulp package-solution --ship`);
+            yield exec_1.exec(`yarn gulp package-solution --ship`);
         }
         catch (err) {
             core.error("❌ Failed");
@@ -1231,9 +1231,9 @@ function main() {
 function getArtifactName(repo, version) {
     return repo + "-" + version;
 }
-function downloadArtifact(artifactName) {
+function createArtifact(artifactName) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info(`Downloading package artifact ${artifactName}...`);
+        core.info(`Creating artifact ${artifactName}...`);
         const artifactClient = artifact.create();
         try {
             const response = yield artifactClient.downloadArtifact(artifactName);
