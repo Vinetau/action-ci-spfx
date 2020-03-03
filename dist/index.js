@@ -1213,6 +1213,14 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.info("Building and testing solution...");
+            core.info("(1/4) Install");
+            yield exec_1.exec(`yarn install --freeze-lockfile`);
+            core.info("(2/4) Build");
+            yield exec_1.exec(`gulp bundle --ship`);
+            core.info("(3/4) Test");
+            yield exec_1.exec(`yarn test`);
+            core.info("(4/4) Installing...");
+            yield exec_1.exec(`gulp package-solution --ship`);
         }
         catch (err) {
             core.error("❌ Failed");

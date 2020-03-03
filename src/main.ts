@@ -5,6 +5,14 @@ import { exec } from "@actions/exec";
 async function main() {
 	try {
 		core.info("Building and testing solution...");
+		core.info("(1/4) Install");
+		await exec(`yarn install --freeze-lockfile`);
+		core.info("(2/4) Build");
+		await exec(`gulp bundle --ship`);
+		core.info("(3/4) Test");
+		await exec(`yarn test`);
+		core.info("(4/4) Installing...");
+		await exec(`gulp package-solution --ship`);
 
 	} catch (err) {
 		core.error("❌ Failed");
@@ -15,6 +23,7 @@ async function main() {
 function getArtifactName(repo: string, version: string) {
 	return repo + "-" + version;
 }
+
 
 async function downloadArtifact(artifactName: string) {
 	core.info(`Downloading package artifact ${artifactName}...`);
