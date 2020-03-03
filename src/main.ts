@@ -5,7 +5,7 @@ import * as github from "@actions/github";
 
 async function main() {
 	try {
-		let solutionName: string = core.getInput("OCTOPUS_URL", { required: true });
+		let solutionName: string = core.getInput("SOLUTION_NAME", { required: false });
 		core.info("Building and testing solution...");
 		core.info("(1/4) Install");
 		await exec(`yarn install --freeze-lockfile`);

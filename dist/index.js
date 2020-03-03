@@ -2584,7 +2584,7 @@ const github = __importStar(__webpack_require__(469));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let solutionName = core.getInput("OCTOPUS_URL", { required: true });
+            let solutionName = core.getInput("SOLUTION_NAME", { required: false });
             core.info("Building and testing solution...");
             core.info("(1/4) Install");
             yield exec_1.exec(`yarn install --freeze-lockfile`);
