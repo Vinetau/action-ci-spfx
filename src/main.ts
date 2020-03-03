@@ -6,6 +6,9 @@ import * as github from "@actions/github";
 async function main() {
 	try {
 		let solutionName: string = core.getInput("SOLUTION_NAME", { required: false });
+		const context = github.context;
+		const repo = context.repo.repo;
+		core.info(`🧪 ${context.ref}`);
 		core.info("Building and testing solution...");
 		core.info("(1/4) Install");
 		await exec(`yarn install --freeze-lockfile`);
@@ -15,12 +18,9 @@ async function main() {
 		await exec(`yarn test`);
 		core.info("(4/4) Package");
 		await exec(`yarn gulp package-solution --ship`);
-		const context = github.context;
-		const repo = context.repo.repo;
-		const version = (context.ref.indexOf("refs/tags/") !== -1) ? context.ref.replace("refs/tags/", "") : "0.0.1"; // TODO fail on this when we move to only running on release
 		// If no solution name is provided we assume that the solution filename is repo_name.sppkg
 		solutionName = solutionName ? solutionName : `${repo}.sppkg`;
-		createArtifact([`sharepoint\\solution\\${solutionName}`], getArtifactName(repo, version));
+		createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
 
 	} catch (err) {
 		core.error("❌ Failed");

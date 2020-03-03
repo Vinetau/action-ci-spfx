@@ -2585,6 +2585,9 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let solutionName = core.getInput("SOLUTION_NAME", { required: false });
+            const context = github.context;
+            const repo = context.repo.repo;
+            core.info(`🧪 ${context.ref}`);
             core.info("Building and testing solution...");
             core.info("(1/4) Install");
             yield exec_1.exec(`yarn install --freeze-lockfile`);
@@ -2594,12 +2597,9 @@ function main() {
             yield exec_1.exec(`yarn test`);
             core.info("(4/4) Package");
             yield exec_1.exec(`yarn gulp package-solution --ship`);
-            const context = github.context;
-            const repo = context.repo.repo;
-            const version = (context.ref.indexOf("refs/tags/") !== -1) ? context.ref.replace("refs/tags/", "") : "0.0.1"; // TODO fail on this when we move to only running on release
             // If no solution name is provided we assume that the solution filename is repo_name.sppkg
             solutionName = solutionName ? solutionName : `${repo}.sppkg`;
-            createArtifact([`sharepoint\\solution\\${solutionName}`], getArtifactName(repo, version));
+            createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
         }
         catch (err) {
             core.error("❌ Failed");
