@@ -28,10 +28,6 @@ async function main() {
 	}
 }
 
-function getArtifactName(repo: string, version: string) {
-	return repo + "-" + version;
-}
-
 async function createArtifact(files: string[], artifactName: string) {
 	core.info(`Creating artifact ${artifactName}...`);
 	const artifactClient = artifact.create();
