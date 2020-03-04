@@ -2584,10 +2584,27 @@ const github = __importStar(__webpack_require__(469));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let solutionName = core.getInput("SOLUTION_NAME", { required: false });
+            // let solutionName: string = core.getInput("SOLUTION_NAME", { required: false });
             const context = github.context;
             const repo = context.repo.repo;
-            core.info(`Building and testing solution (ref: ${context.ref})...`);
+            yield buildSolution(context.ref);
+            // if (context.ref === "refs/heads/master") {
+            // 	// If no solution name is provided we assume that the solution filename is repo_name.sppkg
+            // 	solutionName = solutionName ? solutionName : `${repo}.sppkg`;
+            // 	createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
+            // }
+            core.info(`✅ complete`);
+        }
+        catch (err) {
+            core.error("❌ Failed");
+            core.setFailed(err.message);
+        }
+    });
+}
+function buildSolution(ref) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            core.info(`Building and testing solution (ref: ${ref})...`);
             core.info("(1/4) Install");
             yield exec_1.exec(`yarn install --freeze-lockfile`);
             core.info("(2/4) Build");
@@ -2596,15 +2613,10 @@ function main() {
             yield exec_1.exec(`yarn test`);
             core.info("(4/4) Package");
             yield exec_1.exec(`yarn gulp package-solution --ship`);
-            if (context.ref === "refs/heads/master") {
-                // If no solution name is provided we assume that the solution filename is repo_name.sppkg
-                solutionName = solutionName ? solutionName : `${repo}.sppkg`;
-                createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
-            }
         }
-        catch (err) {
-            core.error("❌ Failed");
-            core.setFailed(err.message);
+        catch (error) {
+            core.error("❌ failed to build");
+            core.setFailed(error.message);
         }
     });
 }

@@ -5,10 +5,25 @@ import * as github from "@actions/github";
 
 async function main() {
 	try {
-		let solutionName: string = core.getInput("SOLUTION_NAME", { required: false });
+		// let solutionName: string = core.getInput("SOLUTION_NAME", { required: false });
 		const context = github.context;
 		const repo = context.repo.repo;
-		core.info(`Building and testing solution (ref: ${context.ref})...`);
+		await buildSolution(context.ref);
+		// if (context.ref === "refs/heads/master") {
+		// 	// If no solution name is provided we assume that the solution filename is repo_name.sppkg
+		// 	solutionName = solutionName ? solutionName : `${repo}.sppkg`;
+		// 	createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
+		// }
+		core.info(`✅ complete`);
+	} catch (err) {
+		core.error("❌ Failed");
+		core.setFailed(err.message);
+	}
+}
+
+async function buildSolution(ref: string) {
+	try {
+		core.info(`Building and testing solution (ref: ${ref})...`);
 		core.info("(1/4) Install");
 		await exec(`yarn install --freeze-lockfile`);
 		core.info("(2/4) Build");
@@ -17,14 +32,9 @@ async function main() {
 		await exec(`yarn test`);
 		core.info("(4/4) Package");
 		await exec(`yarn gulp package-solution --ship`);
-		if (context.ref === "refs/heads/master") {
-			// If no solution name is provided we assume that the solution filename is repo_name.sppkg
-			solutionName = solutionName ? solutionName : `${repo}.sppkg`;
-			createArtifact([`sharepoint\\solution\\${solutionName}`], repo);
-		}
-	} catch (err) {
-		core.error("❌ Failed");
-		core.setFailed(err.message);
+	} catch (error) {
+		core.error("❌ failed to build");
+		core.setFailed(error.message);
 	}
 }
 
