@@ -15,4 +15,4 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - uses: forsythes-technology/actions-ci-spfx@master
+    - uses: forsythes-technology/action-ci-spfx@master
