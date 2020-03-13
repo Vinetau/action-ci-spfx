@@ -11,7 +11,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2    
-    - run: cd /src/sample-solution
+    - run: cd src\\sample-solution
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
