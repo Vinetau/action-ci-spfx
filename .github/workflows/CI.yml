@@ -7,7 +7,6 @@ on:
       - '**'  
 jobs:
   build:
-    if: github.event.release == ''
     runs-on: windows-latest
     
     steps:
