@@ -7,7 +7,7 @@ async function main() {
 		const context = github.context;
 		core.info(`Building and testing solution (ref: ${context.ref})...`);
 		core.info("(1/4) Install");
-		await exec(`yarn install --freeze-lockfile`);
+		await exec(`yarn install --freeze-lockfile --network-timeout 1000000`);
 		core.info("(2/4) Build");
 		await exec(`yarn gulp bundle --ship`);
 		core.info("(3/4) Test");

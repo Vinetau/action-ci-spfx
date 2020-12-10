@@ -2364,7 +2364,7 @@ function main() {
             const context = github.context;
             core.info(`Building and testing solution (ref: ${context.ref})...`);
             core.info("(1/4) Install");
-            yield exec_1.exec(`yarn install --freeze-lockfile`);
+            yield exec_1.exec(`yarn install --freeze-lockfile --network-timeout 1000000`);
             core.info("(2/4) Build");
             yield exec_1.exec(`yarn gulp bundle --ship`);
             core.info("(3/4) Test");
