@@ -1,6 +1,6 @@
 ## Action CI Spfx
 
-This action builds and tests a spfx solution
+This action builds and tests a SharePoint Framework (SPFx) solution
 
 
 # Usage
@@ -9,5 +9,5 @@ This action builds and tests a spfx solution
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-	- uses: forsythes-technology/action-ci-spfx@master
+	- uses: vinetau/action-ci-spfx@master
 ```
