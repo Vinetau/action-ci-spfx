@@ -6,13 +6,15 @@ async function main() {
 	try {
 		const context = github.context;
 		core.info(`Building and testing solution (ref: ${context.ref})...`);
-		core.info("(1/4) Install");
+		core.info("(1/5) Install Gulp");
+		await exec(`yarn add global gulp --network-timeout 1000000`);
+		core.info("(2/5) Install");
 		await exec(`yarn install --freeze-lockfile`);
-		core.info("(2/4) Build");
+		core.info("(3/5) Build");
 		await exec(`yarn gulp bundle --ship`);
-		core.info("(3/4) Test");
+		core.info("(4/5) Test");
 		await exec(`yarn test`);
-		core.info("(4/4) Package");
+		core.info("(5/5) Package");
 		await exec(`yarn gulp package-solution --ship`);
 		core.info(`✅ complete`);
 	} catch (err) {
